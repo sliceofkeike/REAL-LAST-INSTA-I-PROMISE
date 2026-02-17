@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Permanent IG Feed</title>
+    <style>
+        :root { --bg-gray: #E8E6E3; --notion-text: #37352f; --done-pink: #EDDDEB; }
+        body { font-family: -apple-system, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background: transparent; user-select: none; }
+        
+        .feed-frame { position: relative; width: 90vw; max-width: 400px; background: #000; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; aspect-ratio: 1 / 1; }
+        .ratio-landscape { aspect-ratio: 16 / 9; }
+        .ratio-portrait { aspect-ratio: 4 / 5; }
+
+        .slide { width: 100%; height: 100%; object-fit: cover; display: none; position: relative; }
+        .slide.active { display: block; }
+
+        .nav-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.8); border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; z-index: 10; font-weight: bold; display: flex; align-items: center; justify-content: center; }
+        .prev { left: 10px; } .next { right: 10px; }
+
+        .dots { position: absolute; top: 15px; right: 15px; color: white; cursor: pointer; font-size: 24px; z-index: 15; text-shadow: 0 0 5px rgba(0,0,0,0.5); }
+        .menu { position: absolute; top: 45px; right: 15px; background: white; border-radius: 10px; padding: 5px; display: none; flex-direction: column; z-index: 20; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .menu button { border: none; background: none; padding: 10px 15px; text-align: left; cursor: pointer; font-size: 13px; }
+    </style>
+</head>
+<body>
+
+    <script>
+        /* ---------------------------------------------------
+           IG FEED HARD-CODE SECTION
+           Add your photo links and crop settings here!
+           --------------------------------------------------- */
+        const FEED_SETTINGS = {
+            ratio: "square", // Options: "square", "landscape", "portrait"
+            slides: [
+                { 
+                    url: "https://i.pinimg.com/736x/a3/77/6d/a3776de68e632eef38e28d8a33d17e70.jpg", 
+                    zoom: 1.0, posX: 50, posY: 50 
+                },
+                { 
+                    url: "https://i.pinimg.com/736x/01/02/03/example.jpg", 
+                    zoom: 1.2, posX: 40, posY: 60 
+                }
+                // Add as many slides as you want!
+            ]
+        };
+    </script>
+
+    <div id="feed-container" class="feed-frame">
+        <div id="slides-wrapper" style="width:100%; height:100%;"></div>
+        <button class="nav-arrow prev" onclick="changeSlide(-1)">❮</button>
+        <button class="nav-arrow next" onclick="changeSlide(1)">❯</button>
+        <div class="dots" onclick="toggleMenu()">⋮</div>
+        <div id="popup" class="menu">
+            <button onclick="window.location.reload()">🔄 Refresh Feed</button>
+        </div>
+    </div>
+
+    <script>
+        let currentIndex = 0;
+        const frame = document.getElementById('feed-container');
+
+        window.onload = () => {
+            frame.classList.add(`ratio-${FEED_SETTINGS.ratio}`);
+            render();
+        };
+
+        function render() {
+            const wrapper = document.getElementById('slides-wrapper');
+            wrapper.innerHTML = '';
+            FEED_SETTINGS.slides.forEach((s, idx) => {
+                let img = document.createElement('img');
+                img.src = s.url;
+                img.className = `slide ${idx === currentIndex ? 'active' : ''}`;
+                img.style.transform = `scale(${s.zoom})`;
+                img.style.objectPosition = `${s.posX}% ${s.posY}%`;
+                wrapper.appendChild(img);
+            });
+        }
+
+        function changeSlide(n) {
+            currentIndex = (currentIndex + n + FEED_SETTINGS.slides.length) % FEED_SETTINGS.slides.length;
+            render();
+        }
+
+        function toggleMenu() {
+            const m = document.getElementById('popup');
+            m.style.display = (m.style.display==='flex')?'none':'flex';
+        }
+    </script>
+</body>
+</html>
